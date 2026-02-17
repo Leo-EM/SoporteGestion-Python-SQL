@@ -1,0 +1,13 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+
+# Base de Datos (Seguridad)
+Database/config_privada.py 
+
+# IDEs
+.vscode/
+.idea/
