@@ -8,9 +8,8 @@ import tkinter as tk
 
 # El bloque principal del programa
 def main():
-    root = tk.Tk()
-    app = App(root)
-    root.mainloop()
+    app = App()
+    app.mainloop()
 
 if __name__ == "__main__":
     main()

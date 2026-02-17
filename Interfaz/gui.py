@@ -1,12 +1,14 @@
-import tkinter as tk
-from tkinter import ttk
+import customtkinter as ctk
 from tkinter import messagebox
 
 from Funciones.cliente import *
 from Database.config_privada import get_connection
 
+# Configuración el tema visual de la aplicación
+ctk.set_appearance_mode("System")  # Modos: "System" (standard), "Dark", "Light"
+ctk.set_default_color_theme("blue") # Temas: "blue" (standard), "green", "dark-blue"
 
-class App:
+class App(ctk.CTk):
     def __init__(self, root):
         self.root = root
         self.root.title("Sistema de Gestión")
@@ -16,29 +18,39 @@ class App:
 
         self.root.protocol("WM_DELETE_WINDOW", self.cerrar_aplicacion)
 
-        # Botones principales
-        tk.Label(root, text="Menú Principal", font=("Arial", 16)).pack(pady=20)
+        # Contenedor principal (Frame) para centrar elementos
+        self.main_frame = ctk.CTkFrame(self)
+        self.main_frame.pack(pady=20, padx=20, fill="both", expand=True)
 
-        tk.Button(root, text="Clientes", width=20, command=self.abrir_clientes).pack(pady=10)
-        tk.Button(root, text="Servicios", width=20).pack(pady=10)
-        tk.Button(root, text="Órdenes de Trabajo", width=20).pack(pady=10)
+        # Botones principales
+        self.label = ctk.CTkLabel(self.main_frame, text="Menú Principal", font=("Roboto", 24, "bold"))
+        self.label.pack(pady=(20, 30))
+
+        self.btn_clientes = ctk.CTkButton(self, text="Gestión de Clientes", width=250, height=40, command=self.abrir_clientes)
+        self.btn_clientes.pack(pady=10)
+
+        self.btn_clientes = ctk.CTkButton(self, text="Servicios", width=250, height=40, fg_color="gray")
+        self.btn_clientes.pack(pady=10)
+
+        self.btn_clientes = ctk.CTkButton(self, text="Órdenes de Trabajo", width=250, height=40, fg_color="gray")
+        self.btn_clientes.pack(pady=10)
 
     def cerrar_aplicacion(self):
         if self.connection:
             self.connection.close()
-        self.root.destroy()
+        self.destroy()
 
     def abrir_clientes(self):
-        ventana = tk.Toplevel(self.root)
-        ventana.title("Gestión de Clientes")
-        ventana.geometry("600x400")
+        ventana_clientes = ctk.CTkToplevel(self)
+        ventana_clientes.title("Gestión de Clientes")
+        ventana_clientes.geometry("500x450")
 
-        tk.Label(ventana, text="Clientes", font=("Arial", 14)).pack(pady=10)
+        ctk.CTkLabel(ventana_clientes, text="Panel de Clientes", font=("Roboto", 18)).pack(pady=10)
 
         # ---- TABLA ----
         columnas = ("id", "nombre", "telefono")
 
-        tree = ttk.Treeview(ventana, columns=columnas, show="headings")
+        tree = ctk.Treeview(ventana_clientes, columns=columnas, show="headings")
 
         tree.heading("id", text="ID")
         tree.heading("nombre", text="Nombre")
@@ -55,26 +67,14 @@ class App:
             clientes = obtener_clientes(self.connection)
 
             for cliente in clientes:
-                tree.insert("", tk.END, values=cliente)
+                tree.insert("", ctk.END, values=cliente)
 
         # ---- BOTONES ----
-        tk.Button(
-            ventana,
-            text="Agregar Cliente",
-            command=lambda: self.agregar_cliente(tree)
-        ).pack(pady=5)
+        ctk.CTkButton(ventana_clientes, text="+ Nuevo Cliente", command=self.agregar_cliente).pack(pady=5)
 
-        tk.Button(
-            ventana,
-            text="Actualizar Seleccionado",
-            command=lambda: self.actualizar_cliente(tree)
-        ).pack(pady=5)
+        ctk.CTkButton(ventana_clientes, text="Actualizar Cliente Seleccionado", command=lambda: self.actualizar_cliente(tree)).pack(pady=5)
 
-        tk.Button(
-            ventana,
-            text="Eliminar Seleccionado",
-            command=lambda: self.eliminar_cliente(tree)
-        ).pack(pady=5)
+        ctk.CTkButton(ventana_clientes, text="Eliminar Seleccionado", command=lambda: self.eliminar_cliente(tree)).pack(pady=5)
 
         # Cargar al abrir
         cargar_clientes()
@@ -90,16 +90,16 @@ class App:
         messagebox.showinfo("Lista de Clientes", texto if texto else "No hay clientes.")
 
     def agregar_cliente(self, tree):
-        ventana = tk.Toplevel(self.root)
+        ventana = ctk.CTkToplevel(self.root)
         ventana.title("Agregar Cliente")
         ventana.geometry("300x250")
 
-        tk.Label(ventana, text="Nombre:").pack(pady=5)
-        entry_nombre = tk.Entry(ventana)
+        ctk.CTkLabel(ventana, text="Nombre:").pack(pady=5)
+        entry_nombre = ctk.CTkEntry(ventana)
         entry_nombre.pack(pady=5)
 
-        tk.Label(ventana, text="Teléfono:").pack(pady=5)
-        entry_telefono = tk.Entry(ventana)
+        ctk.CTkLabel(ventana, text="Teléfono:").pack(pady=5)
+        entry_telefono = ctk.CTkEntry(ventana)
         entry_telefono.pack(pady=5)
 
         def guardar_cliente():
@@ -121,9 +121,9 @@ class App:
 
             clientes = obtener_clientes(self.connection)
             for cliente in clientes:
-                tree.insert("", tk.END, values=cliente)
+                tree.insert("", ctk.END, values=cliente)
 
-        tk.Button(ventana, text="Guardar", command=guardar_cliente).pack(pady=15)
+        ctk.CTkButton(ventana, text="Guardar", command=guardar_cliente).pack(pady=15)
 
     def actualizar_cliente(self, tree):
         seleccion = tree.selection()
@@ -135,17 +135,17 @@ class App:
         valores = tree.item(seleccion[0], "values")
         id_cliente, nombre_actual, telefono_actual = valores
 
-        ventana = tk.Toplevel(self.root)
+        ventana = ctk.CTkToplevel(self.root)
         ventana.title("Actualizar Cliente")
         ventana.geometry("300x250")
 
-        tk.Label(ventana, text="Nombre:").pack(pady=5)
-        entry_nombre = tk.Entry(ventana)
+        ctk.CTkLabel(ventana, text="Nombre:").pack(pady=5)
+        entry_nombre = ctk.CTkEntry(ventana)
         entry_nombre.insert(0, nombre_actual)
         entry_nombre.pack(pady=5)
 
-        tk.Label(ventana, text="Teléfono:").pack(pady=5)
-        entry_telefono = tk.Entry(ventana)
+        ctk.CTkLabel(ventana, text="Teléfono:").pack(pady=5)
+        entry_telefono = ctk.CTkEntry(ventana)
         entry_telefono.insert(0, telefono_actual)
         entry_telefono.pack(pady=5)
 
@@ -167,11 +167,11 @@ class App:
 
             clientes = obtener_clientes(self.connection)
             for cliente in clientes:
-                tree.insert("", tk.END, values=cliente)
+                tree.insert("", ctk.END, values=cliente)
 
             messagebox.showinfo("Éxito", "Cliente actualizado.")
 
-        tk.Button(ventana, text="Guardar Cambios", command=guardar_cambios).pack(pady=15)
+        ctk.CTkButton(ventana, text="Guardar Cambios", command=guardar_cambios).pack(pady=15)
 
     def eliminar_cliente(self, tree):
         seleccion = tree.selection()
@@ -197,6 +197,6 @@ class App:
 
             clientes = obtener_clientes(self.connection)
             for cliente in clientes:
-                tree.insert("", tk.END, values=cliente)
+                tree.insert("", ctk.END, values=cliente)
 
             messagebox.showinfo("Éxito", "Cliente eliminado.")
