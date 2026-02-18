@@ -6,16 +6,16 @@ def cliente_existe(connection, id_servicio):
     return resultado is not None
 
 
-def obtener_clientes(connection):
+def obtener_servicios(connection):
     try:
         cursor = connection.cursor()
 
         query = "SELECT * FROM servicios ORDER BY id_servicio ASC"
         cursor.execute(query)
 
-        clientes = cursor.fetchall()  # Trae todos los registros
+        servicios = cursor.fetchall()  # Trae todos los registros
 
-        return clientes
+        return servicios
 
     except Exception as e:
         print("❌ Error al obtener los servicios:", e)
